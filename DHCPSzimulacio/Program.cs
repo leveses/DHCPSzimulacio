@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace DHCPSzimulacio
 {
@@ -19,7 +20,7 @@ namespace DHCPSzimulacio
             BeolvasList(commands, "test.csv");
             BeolvasDictionary(dhcp, "dhcp.csv");
             BeolvasDictionary(reserved, "reserved.csv");
-            
+            Feladatok();
 
             Console.ReadKey();
         }
@@ -80,6 +81,64 @@ namespace DHCPSzimulacio
             {
 
                 Console.WriteLine(ex.Message);
+            }
+        }
+        static void Feladat(string parancs)
+        {
+            /* parancs = request;D14134124141
+             * csak "request" parancsalfoglakozunk
+             * Megnézzük hogy request-e
+             * 
+             */
+            if (parancs.Contains("request"))
+            {
+                string[] a = parancs.Split(';');
+                string mac = a[1];
+
+                if (dhcp.ContainsKey(mac))
+                {
+                    Console.WriteLine($"DHCP {mac} --> {dhcp[mac]}");
+                }
+                else
+                {
+                    if (reserved.ContainsKey(mac))
+                    {
+                        Console.WriteLine($"Res. {mac} --> {reserved[mac]}");
+                        dhcp.Add(mac, reserved[mac]);
+                    }
+                    else
+                    {
+                        string indulo = "192.168.10.100";
+                        int Okt4 = 100;
+                        while (Okt4 < 200 && (dhcp.ContainsValue(indulo) || reserved.ContainsValue(indulo) || excluded.Contains(indulo)))
+                        {
+                            Okt4++;
+                            indulo = CimEgyelNo(indulo);
+                        }
+                        if (Okt4<200)
+                        {
+                            Console.WriteLine($"Kiosztott: {mac} --> {indulo}");
+                            dhcp.Add(mac, indulo);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{mac} nincs IP");
+                        }
+                    }
+
+                    
+                }
+            }
+            else
+            {
+                Console.WriteLine("IDK");
+            }
+        }
+        static void Feladatok()
+        {
+            foreach (var command in commands)
+            {
+                Feladat(command);
             }
         }
     }
