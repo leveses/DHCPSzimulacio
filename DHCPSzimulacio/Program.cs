@@ -10,22 +10,30 @@ namespace DHCPSzimulacio
     class Program
     {
         static List<string> excluded = new List<string>();
+        static Dictionary<string, string> dhcp = new Dictionary<string, string>();
+        static Dictionary<string, string> reserved = new Dictionary<string, string>();
+        static List<string> commands = new List<string>();
         static void Main(string[] args)
         {
-            BeolvasExcluded();
+            BeolvasList(excluded,"excluded.csv");
+            BeolvasList(commands, "test.csv");
+            BeolvasDictionary(dhcp, "dhcp.csv");
+            BeolvasDictionary(reserved, "reserved.csv");
+            
+
             Console.ReadKey();
         }
-        static void BeolvasExcluded()
+        static void BeolvasList(List<string> l,string filename)
         {
             
             try
             {
-                StreamReader file = new StreamReader("excluded.csv");
+                StreamReader file = new StreamReader(filename);
                 try
                 {
                     while (!file.EndOfStream)
                     {
-                        excluded.Add(file.ReadLine());
+                        l.Add(file.ReadLine());
                     }
                 }
                 catch (Exception ex)
@@ -53,7 +61,26 @@ namespace DHCPSzimulacio
             {
                 utolso++;
             }
-            return adat[0] + "." + adat[1] + "." + adat[3] + "." + utolso.ToString();
+            return adat[0] + "." + adat[1] + "." + adat[2] + "." + utolso.ToString();
+        }
+        static void BeolvasDictionary(Dictionary<string,string> d, string filenev)
+        {
+            try
+            {
+                StreamReader file = new StreamReader(filenev);
+
+                while (!file.EndOfStream)
+                {
+                    string[] adatok = file.ReadLine().Split(';');
+                    d.Add(adatok[0], adatok[1]);
+                }
+                file.Close();
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
